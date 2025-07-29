@@ -1,0 +1,69 @@
+@startuml
+skinparam dpi 150
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BarColor #1A73E8
+  DiamondBackgroundColor #E3F2FD
+  DiamondBorderColor #1A73E8
+  BorderColor #1A73E8
+}
+
+title
+Chatbot Consultorio Médico – Flujo para Backoffice
+<font size=12>Gestión de pagos, citas, sesiones y consultas administrativas</font>
+end title
+
+start
+:Usuario inicia conversación;
+:Solicitar identificación;
+:Verificar rol del usuario;
+
+if (¿Es backoffice?) then (Sí)
+  :Mostrar menú administrativo\n(Validar pagos / Citas / Sesiones / Historial);
+
+  if (¿Qué desea hacer?) then (Validar pagos)
+    :Ver lista de pagos pendientes;
+    :Seleccionar comprobante;
+    :Revisar referencia, valor y paciente;
+    :Marcar como APROBADO o RECHAZADO;
+    :Actualizar estado de pago y cita;
+    :Notificar resultado;
+  elseif (¿Qué desea hacer?) then (Citas)
+    :Buscar paciente;
+    :Consultar citas próximas;
+    :Confirmar o reagendar manualmente;
+    :Actualizar agenda del sistema;
+  elseif (¿Qué desea hacer?) then (Sesiones)
+    :Buscar paciente;
+    :Ver sesiones activas;
+    :Redimir sesión manual;
+    :Actualizar contador y vencimiento;
+  elseif (¿Qué desea hacer?) then (Historial)
+    :Buscar paciente;
+    :Consultar historial de sesiones y pagos;
+  endif
+
+  :¿Desea realizar otra acción?;
+  if (Sí) then (Sí)
+    :Volver al menú administrativo;
+    goto start
+  else (No)
+    :Cerrar sesión;
+    stop
+  endif
+
+else (No)
+  :Redirigir al flujo de paciente (ver otro diagrama);
+  stop
+endif
+
+legend right
+Este flujo aplica solo para usuarios con rol backoffice.
+Funciones:
+- Validación y registro de pagos
+- Revisión y gestión de citas
+- Redención y control de sesiones
+- Consulta de historial clínico-administrativo
+endlegend
+
+@enduml

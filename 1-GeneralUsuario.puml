@@ -1,0 +1,107 @@
+@startuml
+skinparam dpi 150
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BarColor #1A73E8
+  DiamondBackgroundColor #E3F2FD
+  DiamondBorderColor #1A73E8
+  BorderColor #1A73E8
+}
+
+title
+Chatbot Consultorio Médico – Flujo Principal
+<font size=12>Agendamiento, paquetes de sesiones, validación humana del pago y persistencia de datos</font>
+end title
+
+start
+:Usuario inicia conversación;
+:Mostrar menú principal\n(Agendar / Reagendar / Cancelar / Productos / Tips / Agenda);
+
+if (¿Qué desea hacer?) then (Agendar cita)
+  partition "Agendamiento" {
+    :Solicitar especialidad, sede y fecha;
+    :Consultar disponibilidad;
+    if (¿Hay disponibilidad?) then (Sí)
+      :Verificar si tiene sesiones activas;
+      if (¿Tiene sesiones por redimir?) then (Sí)
+        :Usar sesión;
+        partition "Persistencia" {
+          :Guardar sesión redimida y actualizar contador;
+          :Registrar cita como CONFIRMADA;
+        }
+        :Confirmar cita y notificar;
+      else (No)
+        :Mostrar valor y medios de pago;
+        :Solicitar comprobante;
+
+        partition "Validación Humana" {
+          :Backoffice verifica pago;
+          if (¿Pago aprobado?) then (Sí)
+            partition "Persistencia" {
+              :Registrar estado de pago (CONFIRMADO);
+              :Guardar cita como CONFIRMADA;
+            }
+            :Confirmar cita y enviar notificación;
+          else (No)
+            partition "Persistencia" {
+              :Registrar estado de pago (RECHAZADO);
+            }
+            :Notificar rechazo al usuario;
+          endif
+        }
+      endif
+    else (No)
+      :Informar que no hay disponibilidad;
+    endif
+  }
+elseif (Reagendar cita)
+  partition "Reagendamiento" {
+    :Solicitar datos de la cita actual;
+    :Ofrecer nuevas fechas disponibles;
+    :Confirmar nueva cita;
+    partition "Persistencia" {
+      :Actualizar fecha y hora de la cita;
+    }
+  }
+elseif (Cancelar cita)
+  partition "Cancelación" {
+    :Solicitar cita a cancelar;
+    :Confirmar cancelación;
+    partition "Persistencia" {
+      :Registrar estado CANCELADA;
+      :Liberar espacio en agenda;
+    }
+    :Notificar al paciente;
+  }
+elseif (Productos)
+  partition "Productos" {
+    :Mostrar catálogo de productos y servicios;
+  }
+elseif (Tips)
+  partition "Tips de Cuidado" {
+    :Mostrar consejos de salud y prevención;
+  }
+elseif (Agenda)
+  partition "Agenda" {
+    :Consultar citas programadas;
+    :Mostrar fechas, horarios y estado;
+  }
+endif
+
+:¿Desea realizar otra acción?;
+if (Sí) then (Sí)
+  :Volver al menú;
+  goto start
+else (No)
+  :Cerrar sesión y finalizar;
+  stop
+endif
+
+legend right
+**Notas**
+- Toda cita y sesión usada se guarda en persistencia
+- Estados de pago: PENDIENTE / CONFIRMADO / RECHAZADO
+- Cancelaciones actualizan el estado y liberan espacio
+- Flujo mantiene la lógica original, ahora con trazabilidad
+endlegend
+@enduml

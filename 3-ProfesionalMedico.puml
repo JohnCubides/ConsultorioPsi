@@ -1,0 +1,67 @@
+@startuml
+skinparam dpi 150
+skinparam activity {
+  BackgroundColor #FFFFFF
+  BarColor #388E3C
+  DiamondBackgroundColor #E8F5E9
+  DiamondBorderColor #388E3C
+  BorderColor #388E3C
+}
+
+title
+Chatbot Consultorio Médico – Flujo para Profesional de Atención
+<font size=12>Validación de rol y gestión simple de agenda</font>
+end title
+
+start
+:Usuario inicia conversación;
+:Solicitar identificación;
+:Verificar rol del usuario;
+
+if (¿Es profesional de atención?) then (Sí)
+  :Ver agenda de citas del día;
+
+  if (¿Hay citas programadas?) then (Sí)
+    :Seleccionar cita;
+
+    if (¿Desea cancelar la cita?) then (Sí)
+      :Registrar cancelación;
+      :Liberar espacio en agenda;
+    else (No)
+      if (¿Paciente no asistió?) then (Sí)
+        :Marcar cita como NO ATENDIDA;
+        :Registrar motivo (no asistencia);
+      else (No)
+        :No hacer acción adicional;\n(Se considera ATENDIDA por defecto);
+      endif
+    endif
+
+    :¿Hay más citas?;
+    if (Sí) then (Sí)
+      goto start
+    else (No)
+      :Finalizar jornada;
+      stop
+    endif
+
+  else (No)
+    :No hay citas programadas hoy;
+    :Finalizar jornada;
+    stop
+  endif
+
+else (No)
+  :Redirigir al flujo correspondiente (ver otro diagrama);
+  stop
+endif
+
+legend right
+Este flujo aplica solo a profesionales de atención.
+Reglas:
+- Validación de rol antes de mostrar agenda
+- Las citas se asumen ATENDIDAS por defecto
+- Solo se marcan como NO ATENDIDAS o CANCELADAS si aplica
+- No se accede a historia clínica ni se registran observaciones
+endlegend
+
+@enduml
