@@ -15,6 +15,7 @@ end title
 
 start
 :Usuario inicia conversación;
+:validar rol Usuario;
 :Mostrar menú principal\n(Agendar / Reagendar / Cancelar / Productos / Tips / Agenda);
 
 if (¿Qué desea hacer?) then (Agendar cita)
